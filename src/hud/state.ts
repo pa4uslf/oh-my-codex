@@ -9,7 +9,7 @@ import { readFileSync } from 'fs';
 import { execFileSync } from 'child_process';
 import { join, dirname, basename } from 'path';
 import { fileURLToPath } from 'url';
-import { omxStateDir } from '../utils/paths.js';
+import { codexHome, omxStateDir } from '../utils/paths.js';
 import { findGitLayout, readGitLayoutFile } from '../utils/git-layout.js';
 import { getDefaultBridge, isBridgeEnabled } from '../runtime/bridge.js';
 import type { RuntimeSnapshot } from '../runtime/bridge.js';
@@ -77,7 +77,11 @@ function sanitizeOptionalString(value: unknown): string | undefined {
 }
 
 export function normalizeHudConfig(raw: HudConfig | null | undefined): ResolvedHudConfig {
-  const normalized: ResolvedHudConfig = {
+  return mergeHudConfigLayers([raw]);
+}
+
+export function mergeHudConfigLayers(layers: Array<HudConfig | null | undefined>): ResolvedHudConfig {
+  const merged: ResolvedHudConfig = {
     preset: DEFAULT_HUD_CONFIG.preset,
     git: {
       ...DEFAULT_HUD_CONFIG.git,
@@ -85,29 +89,31 @@ export function normalizeHudConfig(raw: HudConfig | null | undefined): ResolvedH
     tmuxAutoPane: DEFAULT_HUD_CONFIG.tmuxAutoPane,
   };
 
-  if (!raw || typeof raw !== 'object') return normalized;
+  for (const raw of layers) {
+    if (!raw || typeof raw !== 'object') continue;
 
-  if (isValidPreset(raw.preset)) {
-    normalized.preset = raw.preset;
-  }
-
-  if (typeof raw.tmuxAutoPane === 'boolean') {
-    normalized.tmuxAutoPane = raw.tmuxAutoPane;
-  }
-
-  if (raw.git && typeof raw.git === 'object') {
-    if (isValidGitDisplay(raw.git.display)) {
-      normalized.git.display = raw.git.display;
+    if (isValidPreset(raw.preset)) {
+      merged.preset = raw.preset;
     }
 
-    const remoteName = sanitizeOptionalString(raw.git.remoteName);
-    if (remoteName) normalized.git.remoteName = remoteName;
+    if (typeof raw.tmuxAutoPane === 'boolean') {
+      merged.tmuxAutoPane = raw.tmuxAutoPane;
+    }
 
-    const repoLabel = sanitizeOptionalString(raw.git.repoLabel);
-    if (repoLabel) normalized.git.repoLabel = repoLabel;
+    if (raw.git && typeof raw.git === 'object') {
+      if (isValidGitDisplay(raw.git.display)) {
+        merged.git.display = raw.git.display;
+      }
+
+      const remoteName = sanitizeOptionalString(raw.git.remoteName);
+      if (remoteName) merged.git.remoteName = remoteName;
+
+      const repoLabel = sanitizeOptionalString(raw.git.repoLabel);
+      if (repoLabel) merged.git.repoLabel = repoLabel;
+    }
   }
 
-  return normalized;
+  return merged;
 }
 
 export async function readRalphState(cwd: string): Promise<RalphStateForHud | null> {
@@ -178,8 +184,9 @@ export async function readSessionState(cwd: string): Promise<SessionStateForHud 
 }
 
 export async function readHudConfig(cwd: string): Promise<ResolvedHudConfig> {
-  const config = await readJsonFile<HudConfig>(join(cwd, '.omx', 'hud-config.json'));
-  return normalizeHudConfig(config);
+  const globalConfig = await readJsonFile<HudConfig>(join(codexHome(), 'omx', 'hud-config.json'));
+  const projectConfig = await readJsonFile<HudConfig>(join(cwd, '.omx', 'hud-config.json'));
+  return mergeHudConfigLayers([globalConfig, projectConfig]);
 }
 
 export function readVersion(): string | null {

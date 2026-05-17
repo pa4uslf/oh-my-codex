@@ -64,7 +64,9 @@ pane alive across prompt submissions so long-running workflows keep a visible
 status surface.
 
 Users who prefer to manage tmux panes manually can disable only that automatic
-pane creation while keeping the rest of the native hook behavior:
+pane creation while keeping the rest of the native hook behavior. To change the
+default for every project, save this as `$CODEX_HOME/omx/hud-config.json`
+(`~/.codex/omx/hud-config.json` when `CODEX_HOME` is unset):
 
 ```json
 {
@@ -73,9 +75,12 @@ pane creation while keeping the rest of the native hook behavior:
 }
 ```
 
-Save that as `.omx/hud-config.json` in the project. With `tmuxAutoPane: false`,
-`UserPromptSubmit` still runs prompt routing and other native hook logic, but it
-does not recreate a closed HUD pane.
+Project-local `.omx/hud-config.json` is still supported and overrides the global
+file. That means a user can set `tmuxAutoPane: false` globally and opt a single
+project back in with project-local `tmuxAutoPane: true`.
+
+With `tmuxAutoPane: false`, `UserPromptSubmit` still runs prompt routing and
+other native hook logic, but it does not recreate a closed HUD pane.
 
 ## Project wiki addendum (approved v1 backport)
 

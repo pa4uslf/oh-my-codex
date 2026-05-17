@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { normalizeHudConfig } from '../state.js';
+import { mergeHudConfigLayers, normalizeHudConfig } from '../state.js';
 import { DEFAULT_HUD_CONFIG } from '../types.js';
 
 describe('DEFAULT_HUD_CONFIG', () => {
@@ -60,5 +60,27 @@ describe('normalizeHudConfig', () => {
         repoLabel: 123 as never,
       },
     }), DEFAULT_HUD_CONFIG);
+  });
+
+  it('lets project HUD config override global defaults', () => {
+    assert.deepEqual(mergeHudConfigLayers([
+      { preset: 'minimal', tmuxAutoPane: false },
+      { preset: 'focused', tmuxAutoPane: true },
+    ]), {
+      preset: 'focused',
+      git: { display: 'repo-branch' },
+      tmuxAutoPane: true,
+    });
+  });
+
+  it('uses global HUD config when project config omits a field', () => {
+    assert.deepEqual(mergeHudConfigLayers([
+      { tmuxAutoPane: false, git: { display: 'branch' } },
+      { preset: 'full' },
+    ]), {
+      preset: 'full',
+      git: { display: 'branch' },
+      tmuxAutoPane: false,
+    });
   });
 });

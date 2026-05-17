@@ -2,6 +2,12 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { reconcileHudForPromptSubmit } from '../reconcile.js';
 
+const enabledHudConfig = async () => ({
+  preset: 'focused' as const,
+  git: { display: 'repo-branch' as const },
+  tmuxAutoPane: true,
+});
+
 describe('reconcileHudForPromptSubmit', () => {
   it('skips reconciliation outside tmux', async () => {
     const result = await reconcileHudForPromptSubmit('/tmp', {
@@ -20,6 +26,7 @@ describe('reconcileHudForPromptSubmit', () => {
       listCurrentWindowPanes: () => [
         { paneId: '%1', currentCommand: 'codex', startCommand: 'codex' },
       ],
+      readHudConfig: enabledHudConfig,
       createHudWatchPane: (cwd, cmd, options) => {
         created.push({ cwd, cmd, options });
         return '%9';
@@ -85,6 +92,7 @@ describe('reconcileHudForPromptSubmit', () => {
       listCurrentWindowPanes: () => [
         { paneId: '%1', currentCommand: 'codex', startCommand: 'codex' },
       ],
+      readHudConfig: enabledHudConfig,
       createHudWatchPane: (_cwd, cmd) => {
         created.push({ cmd });
         return '%9';
@@ -111,6 +119,7 @@ describe('reconcileHudForPromptSubmit', () => {
           { paneId: '%leader', currentCommand: 'codex', startCommand: 'codex' },
         ];
       },
+      readHudConfig: enabledHudConfig,
       createHudWatchPane: (_cwd, _cmd, options) => {
         created.push({ options });
         return '%hud';
@@ -135,6 +144,7 @@ describe('reconcileHudForPromptSubmit', () => {
         { paneId: '%3', currentCommand: 'node', startCommand: 'node omx hud --watch' },
         { paneId: '%4', currentCommand: 'codex', startCommand: 'codex' },
       ],
+      readHudConfig: enabledHudConfig,
       killTmuxPane: (paneId) => {
         killed.push(paneId);
         return true;
@@ -160,6 +170,7 @@ describe('reconcileHudForPromptSubmit', () => {
         { paneId: '%1', currentCommand: 'codex', startCommand: 'codex' },
         { paneId: '%2', currentCommand: 'node', startCommand: 'node omx hud --watch' },
       ],
+      readHudConfig: enabledHudConfig,
       resizeTmuxPane: (paneId, heightLines) => {
         resized.push({ paneId, heightLines });
         return true;

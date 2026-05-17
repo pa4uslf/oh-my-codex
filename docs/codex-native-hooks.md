@@ -24,6 +24,12 @@ For project scope, `.gitignore` keeps generated `.codex/hooks.json` out of sourc
 
 OMX only owns the wrapper entries that invoke `dist/scripts/codex-native-hook.js`. User-managed hook entries in the same `.codex/hooks.json` file are preserved across `omx setup` refreshes and `omx uninstall`.
 
+Managed native hook wrappers are intentionally bounded: `SessionStart`,
+`PreToolUse`, `PostToolUse`, and `UserPromptSubmit` use a `10` second Codex hook
+timeout, while `Stop` uses `30` seconds for continuation checks. Do not remove
+these timeouts; lifecycle hooks must fail closed or degrade quickly rather than
+leaving the Codex UI stuck on a running hook status.
+
 ## Mapping matrix
 
 | OMC / OMX surface | Native Codex source | OMX runtime target | Status | Notes |

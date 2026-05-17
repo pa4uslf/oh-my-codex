@@ -12,6 +12,9 @@ type ManagedHookEventName = (typeof MANAGED_HOOK_EVENTS)[number];
 
 type JsonObject = Record<string, unknown>;
 
+export const DEFAULT_NATIVE_HOOK_TIMEOUT_SECONDS = 10;
+export const STOP_NATIVE_HOOK_TIMEOUT_SECONDS = 30;
+
 export interface ManagedCodexHooksConfig {
   hooks: Record<ManagedHookEventName, Array<Record<string, unknown>>>;
 }
@@ -66,27 +69,32 @@ export function buildManagedCodexHooksConfig(
       SessionStart: [
         buildCommandHook(command, {
           matcher: "startup|resume",
+          timeout: DEFAULT_NATIVE_HOOK_TIMEOUT_SECONDS,
         }),
       ],
       PreToolUse: [
         buildCommandHook(command, {
           matcher: "Bash",
           statusMessage: "Running OMX Bash preflight",
+          timeout: DEFAULT_NATIVE_HOOK_TIMEOUT_SECONDS,
         }),
       ],
       PostToolUse: [
         buildCommandHook(command, {
+          matcher: "Bash",
           statusMessage: "Running OMX tool review",
+          timeout: DEFAULT_NATIVE_HOOK_TIMEOUT_SECONDS,
         }),
       ],
       UserPromptSubmit: [
         buildCommandHook(command, {
           statusMessage: "Applying OMX prompt routing",
+          timeout: DEFAULT_NATIVE_HOOK_TIMEOUT_SECONDS,
         }),
       ],
       Stop: [
         buildCommandHook(command, {
-          timeout: 30,
+          timeout: STOP_NATIVE_HOOK_TIMEOUT_SECONDS,
         }),
       ],
     },

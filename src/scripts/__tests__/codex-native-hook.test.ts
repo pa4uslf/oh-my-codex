@@ -140,6 +140,7 @@ describe("codex native hook config", () => {
     };
     assert.equal(sessionStart.matcher, "startup|resume");
     assert.equal(sessionStart.hooks?.[0]?.statusMessage, undefined);
+    assert.equal(sessionStart.hooks?.[0]?.timeout, 10);
 
     const preToolUse = config.hooks.PreToolUse[0] as {
       matcher?: string;
@@ -150,17 +151,24 @@ describe("codex native hook config", () => {
       String(preToolUse.hooks?.[0]?.command || ""),
       /codex-native-hook\.js"?$/,
     );
+    assert.equal(preToolUse.hooks?.[0]?.timeout, 10);
 
     const postToolUse = config.hooks.PostToolUse[0] as {
       matcher?: string;
       hooks?: Array<Record<string, unknown>>;
     };
-    assert.equal(postToolUse.matcher, undefined);
+    assert.equal(postToolUse.matcher, "Bash");
     assert.match(
       String(postToolUse.hooks?.[0]?.command || ""),
       /codex-native-hook\.js"?$/,
     );
     assert.equal(postToolUse.hooks?.[0]?.statusMessage, "Running OMX tool review");
+    assert.equal(postToolUse.hooks?.[0]?.timeout, 10);
+
+    const userPromptSubmit = config.hooks.UserPromptSubmit[0] as {
+      hooks?: Array<Record<string, unknown>>;
+    };
+    assert.equal(userPromptSubmit.hooks?.[0]?.timeout, 10);
 
     const stop = config.hooks.Stop[0] as {
       hooks?: Array<Record<string, unknown>>;

@@ -56,6 +56,27 @@ leaving the Codex UI stuck on a running hook status.
 | wiki session capture | none | `session-end` | runtime-fallback | Wiki session-log capture runs from the existing runtime session-end cleanup path, not from a native Codex hook |
 | `session-idle` | none | `session-idle` | runtime-fallback | Still emitted from runtime/notify path, not native Codex hooks |
 
+## tmux HUD auto-pane
+
+On `UserPromptSubmit`, the native wrapper reconciles the tmux HUD pane as a
+best-effort side effect. By default, OMX keeps the bottom `omx hud --watch`
+pane alive across prompt submissions so long-running workflows keep a visible
+status surface.
+
+Users who prefer to manage tmux panes manually can disable only that automatic
+pane creation while keeping the rest of the native hook behavior:
+
+```json
+{
+  "preset": "focused",
+  "tmuxAutoPane": false
+}
+```
+
+Save that as `.omx/hud-config.json` in the project. With `tmuxAutoPane: false`,
+`UserPromptSubmit` still runs prompt routing and other native hook logic, but it
+does not recreate a closed HUD pane.
+
 ## Project wiki addendum (approved v1 backport)
 
 The approved OMX-native wiki backport keeps lifecycle ownership intentionally narrow:

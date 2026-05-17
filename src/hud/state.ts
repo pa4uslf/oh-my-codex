@@ -82,12 +82,17 @@ export function normalizeHudConfig(raw: HudConfig | null | undefined): ResolvedH
     git: {
       ...DEFAULT_HUD_CONFIG.git,
     },
+    tmuxAutoPane: DEFAULT_HUD_CONFIG.tmuxAutoPane,
   };
 
   if (!raw || typeof raw !== 'object') return normalized;
 
   if (isValidPreset(raw.preset)) {
     normalized.preset = raw.preset;
+  }
+
+  if (typeof raw.tmuxAutoPane === 'boolean') {
+    normalized.tmuxAutoPane = raw.tmuxAutoPane;
   }
 
   if (raw.git && typeof raw.git === 'object') {

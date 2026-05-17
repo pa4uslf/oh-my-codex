@@ -11,6 +11,10 @@ describe('DEFAULT_HUD_CONFIG', () => {
   it('defaults git display to repo-branch', () => {
     assert.deepEqual(DEFAULT_HUD_CONFIG.git, { display: 'repo-branch' });
   });
+
+  it('enables tmux auto-pane reconciliation by default', () => {
+    assert.equal(DEFAULT_HUD_CONFIG.tmuxAutoPane, true);
+  });
 });
 
 describe('normalizeHudConfig', () => {
@@ -23,12 +27,14 @@ describe('normalizeHudConfig', () => {
     assert.deepEqual(normalizeHudConfig({ preset: 'minimal' }), {
       preset: 'minimal',
       git: { display: 'repo-branch' },
+      tmuxAutoPane: true,
     });
   });
 
   it('deep-merges bounded git config', () => {
     assert.deepEqual(normalizeHudConfig({
       preset: 'full',
+      tmuxAutoPane: false,
       git: {
         display: 'branch',
         remoteName: 'upstream',
@@ -36,6 +42,7 @@ describe('normalizeHudConfig', () => {
       },
     }), {
       preset: 'full',
+      tmuxAutoPane: false,
       git: {
         display: 'branch',
         remoteName: 'upstream',

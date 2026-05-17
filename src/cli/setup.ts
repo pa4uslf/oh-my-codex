@@ -1048,7 +1048,7 @@ export async function setup(options: SetupOptions = {}): Promise<void> {
   const hudConfigPath = join(projectRoot, ".omx", "hud-config.json");
   if (force || !existsSync(hudConfigPath)) {
     if (!dryRun) {
-      const defaultHudConfig = { preset: "focused" };
+      const defaultHudConfig = { preset: "focused", tmuxAutoPane: true };
       await writeFile(hudConfigPath, JSON.stringify(defaultHudConfig, null, 2));
     }
     if (verbose) console.log("  Wrote .omx/hud-config.json");

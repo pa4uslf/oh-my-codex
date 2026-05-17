@@ -115,6 +115,7 @@ export interface HudGitConfig {
 export interface HudConfig {
   preset?: HudPreset;
   git?: HudGitConfig;
+  tmuxAutoPane?: boolean;
 }
 
 export interface ResolvedHudGitConfig {
@@ -126,6 +127,7 @@ export interface ResolvedHudGitConfig {
 export interface ResolvedHudConfig {
   preset: HudPreset;
   git: ResolvedHudGitConfig;
+  tmuxAutoPane: boolean;
 }
 
 /** Default HUD configuration */
@@ -134,6 +136,7 @@ export const DEFAULT_HUD_CONFIG: ResolvedHudConfig = {
   git: {
     display: 'repo-branch',
   },
+  tmuxAutoPane: true,
 };
 
 /** CLI flags for omx hud */

@@ -40,6 +40,42 @@ describe('reconcileHudForPromptSubmit', () => {
     assert.equal(resized[0]?.heightLines, 3);
   });
 
+  it('skips tmux auto-pane reconciliation when disabled in HUD config', async () => {
+    let listed = false;
+    let created = false;
+    let resized = false;
+
+    const result = await reconcileHudForPromptSubmit('/repo', {
+      env: { TMUX: '1', TMUX_PANE: '%1' },
+      readHudConfig: async () => ({
+        preset: 'focused',
+        git: { display: 'repo-branch' },
+        tmuxAutoPane: false,
+      }),
+      listCurrentWindowPanes: () => {
+        listed = true;
+        return [
+          { paneId: '%1', currentCommand: 'codex', startCommand: 'codex' },
+        ];
+      },
+      createHudWatchPane: () => {
+        created = true;
+        return '%9';
+      },
+      resizeTmuxPane: () => {
+        resized = true;
+        return true;
+      },
+      resolveOmxCliEntryPath: () => '/repo/dist/cli/omx.js',
+    });
+
+    assert.equal(result.status, 'skipped_disabled');
+    assert.equal(result.paneId, null);
+    assert.equal(listed, false);
+    assert.equal(created, false);
+    assert.equal(resized, false);
+  });
+
   it('prefers an explicit session override when recreating HUD', async () => {
     const created: Array<{ cmd: string }> = [];
 
